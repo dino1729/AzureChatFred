@@ -22,11 +22,13 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
 
 import openai
 
+openai.api_type = "azure"
+openai.api_version = "2023-03-15-preview"
 openai.api_key = os.getenv("api_key")
 if os.getenv("custom_api_url"):
     openai.api_base = os.getenv("custom_api_url")
 
-__model = os.getenv("chat_gpt_model") or "gpt-3.5-turbo"
+__engine = os.getenv("chat_gpt_model") or "gpt-3p5-turbo-16k"
 __history_length = int(os.getenv("history_length") or 4)
 __temperature = float(os.getenv("temperature") or 0.0)
 __max_tokens = int(os.getenv("chat_max_tokens")) if os.getenv("chat_max_tokens") else None  # type: ignore
@@ -98,7 +100,7 @@ def exit_on_error() -> None:
     """
     error = env_value_error_if_needed(
         __temperature,
-        __model,
+        __engine,
         __max_tokens,
         __frequency_penalty,
         __presence_penalty,
@@ -256,7 +258,7 @@ def make_chat_request(
     try:
         response = (
             openai.ChatCompletion.create(
-                model=__model,
+                engine=__engine,
                 messages=messages,
                 temperature=temperature,
                 max_tokens=max_tokens,
@@ -272,7 +274,7 @@ def make_chat_request(
         response = exception_response(exception)
         write_to_cache("last_chat_request_successful", False)
         log_error_if_needed(
-            model=__model,
+            engine=__engine,
             error_message=exception._message,  # type: ignore  # pylint: disable=protected-access
             user_prompt=prompt,
             parameters={

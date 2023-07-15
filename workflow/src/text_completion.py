@@ -17,10 +17,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
 
 import openai
 
+openai.api_type = "azure"
+openai.api_version = "2023-03-15-preview"
 openai.api_key = os.getenv("api_key")
 if os.getenv("custom_api_url"):
     openai.api_base = os.getenv("custom_api_url")
-__model = os.getenv("instruct_gpt_model") or "text-davinci-003"
+__engine = os.getenv("instruct_gpt_model") or "text-davinci-003"
 __temperature = float(os.getenv("temperature") or 0.0)
 __max_tokens = int(os.getenv("completion_max_tokens") or 50)
 __top_p = int(os.getenv("top_p") or 1)
@@ -75,7 +77,7 @@ def intercept_custom_prompts(prompt: str):
 def exit_on_error() -> None:
     """Checks the environment variables for invalid values."""
     error = env_value_error_if_needed(
-        __temperature, __model, __max_tokens, __frequency_penalty, __presence_penalty
+        __temperature, __engine, __max_tokens, __frequency_penalty, __presence_penalty
     )
     if error:
         stdout_write(error)
@@ -83,7 +85,7 @@ def exit_on_error() -> None:
 
 
 def make_request(
-    model: str,
+    engine: str,
     prompt: str,
     temperature: float,
     max_tokens: int,
@@ -99,7 +101,7 @@ def make_request(
     try:
         return (
             openai.Completion.create(
-                model=model,
+                engine=engine,
                 prompt=prompt,
                 temperature=temperature,
                 max_tokens=max_tokens,
@@ -114,7 +116,7 @@ def make_request(
     except Exception as exception:  # pylint: disable=broad-except
         write_to_cache("last_text_completion_request_successful", False)
         log_error_if_needed(
-            model=model,
+            engine=engine,
             error_message=exception._message,  # type: ignore  # pylint: disable=protected-access
             user_prompt=prompt.replace("Q: ", "").split("\n")[0],
             parameters={
@@ -130,7 +132,7 @@ def make_request(
 
 exit_on_error()
 response = make_request(
-    __model,
+    __engine,
     prompt_from_query(get_query()),
     __temperature,
     __max_tokens,

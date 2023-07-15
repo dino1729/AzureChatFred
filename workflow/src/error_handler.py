@@ -25,11 +25,11 @@ def env_value_error_if_needed(
         return f"🚨 'Temperature' must be ≤ 2.0 and ≥ 0. But you have set it to {temperature}."
 
     if (
-        (model == "text-davinci-003" or model == "gpt-3.5-turbo")
+        (model == "gpt-3p5-turbo-16k")
         and max_tokens
-        and max_tokens > 4096
+        and max_tokens > 8192
     ):
-        return "🚨 'Maximum tokens' must be ≤ 4096"
+        return "🚨 'Maximum tokens' must be ≤ 8192"
 
     if (
         model in ["text-ada-001", "text-babbage-001", "text-curie-001"]

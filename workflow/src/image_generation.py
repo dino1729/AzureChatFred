@@ -17,6 +17,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
 
 import openai
 
+openai.api_type = "azure"
+openai.api_version = "2023-06-01-preview"
 openai.api_key = os.getenv("api_key")
 if os.getenv("custom_api_url"):
     openai.api_base = os.getenv("custom_api_url")
